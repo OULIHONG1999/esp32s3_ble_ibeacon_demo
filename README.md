@@ -1,122 +1,65 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- |
+| 支持的芯片 | ESP32 | ESP32-S3 |
+| ---------- | ----- | -------- |
 
-# ESP-IDF iBeacon demo
+# ESP-IDF iBeacon 扫描器
 
-From welcoming people as they arrive at a sporting event to providing information about a nearby museum exhibit, iBeacon opens a new world of possibilities for location awareness, and countless opportunities for interactivity between iOS devices and iBeacon hardware.
+本项目演示了使用 ESP32/ESP32-S3 进行 iBeacon 扫描的功能。项目使用自定义的 IBeaconManager 组件来简化 iBeacon 接收功能的实现。
 
-## How to Use Example
+## 如何使用示例
 
-Before project configuration and build, be sure to set the correct chip target using:
+在配置和构建项目之前，请确保使用以下命令设置正确的芯片目标：
 
 ```bash
 idf.py set-target <chip_name>
 ```
 
-**Note:** *iBeacon is a trademark of Apple Inc.*
+### 硬件要求
 
-Before building devices which use iBeacon technology, visit [Apple iBeacon](https://developer.apple.com/ibeacon/) to obtain a license.
+* 一块 ESP32/ESP32-S3 开发板
+* 一个或多个 iBeacon 发射器
 
-### iBeacon Mode
+### 配置项目
 
-This example demonstrates iBeacon-compatible BLE advertising, and scanning of iBeacons:
-
-- **IBEACON_SENDER**: demo to send iBeacon-compatible advertising data.
-
-- **IBEACON_RECEIVER**: demo to receive and resolve iBeacon advertising data.
-
-Which demo will be run depends on the menuconfig, developers can set it in `iBeacon Example Configuration`.
-
-The default mode is iBeacon Sender.
-
-### Configure the project
-
-Open the project configuration menu:
+打开项目配置菜单：
 
 ```bash
 idf.py menuconfig
 ```
 
-And then enter `Component config --> Bluetooth --> Bluedroid Enable`
+### 构建和烧录
 
-Because the number of peripherals may be very large, developers can enable the **BLE Scan Duplicate Options**, the maximum number of devices in scan duplicate filter depends on the free heap size, when the cache is full, it is cleared.
+构建项目并将其烧录到您的 ESP32 开发板：
 
-### Event Processing
-In the iBeacon receiver demo, the scan result will be posted to `ESP_GAP_SEARCH_INQ_RES_EVT` event:
-
-```c
-switch (scan_result->scan_rst.search_evt) {
-    case ESP_GAP_SEARCH_INQ_RES_EVT:
-    /* Search for BLE iBeacon Packet */
-    ......
-    break;
-    default:
-    break;
-}
-```
-### Build and Flash
-
-Run `idf.py -p PORT flash monitor` to build, flash and monitor the project.
-
-(To exit the serial monitor, type ``Ctrl-]``.)
-
-See the [Getting Started Guide](https://idf.espressif.com/) for full steps to configure and use ESP-IDF to build projects.
-
-## Example Output
-
-The iBeacon sender will broadcast iBeacon packet after initializing the Bluetooth protocol stack, and the iBeacon receiver will scan the iBeacon packet.
-
-### iBeacon Sender
-
-```
-I (384) boot: Loaded app from partition at offset 0x10000
-I (384) boot: Disabling RNG early entropy source...
-I (386) cpu_start: Pro cpu up.
-I (389) cpu_start: Starting app cpu, entry point is 0x40081010
-I (0) cpu_start: App cpu up.
-I (400) heap_init: Initializing. RAM available for dynamic allocation:
-I (406) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM
-I (413) heap_init: At 3FFCCCA8 len 00013358 (76 KiB): DRAM
-I (419) heap_init: At 3FFE0440 len 00003BC0 (14 KiB): D/IRAM
-I (425) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
-I (431) heap_init: At 40090E58 len 0000F1A8 (60 KiB): IRAM
-I (438) cpu_start: Pro cpu start user code
-I (120) cpu_start: Starting scheduler on PRO CPU
-I (0) cpu_start: Starting scheduler on APP CPU
-I (244) BTDM_INIT: BT controller compile version [44d04c1]
-
-I (244) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE
-I (624) phy: phy_version: 3910, c0c45a3, May 21 2018, 18:07:06, 0, 0
-I (654) IBEACON_DEMO: register callback
+```bash
+idf.py -p PORT flash monitor
 ```
 
-### iBeacon Receiver
+（要退出串口监视器，请按 ``Ctrl-]``）
+
+有关配置和使用 ESP-IDF 构建项目的完整步骤，请参阅[入门指南](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html)。
+
+## 示例输出
+
+当扫描器检测到 iBeacon 设备时，您将看到如下输出：
 
 ```
-I (384) boot: Loaded app from partition at offset 0x10000
-I (384) boot: Disabling RNG early entropy source...
-I (385) cpu_start: Pro cpu up.\0x1b[0m
-I (389) cpu_start: Starting app cpu, entry point is 0x40081010
-I (0) cpu_start: App cpu up.
-I (400) heap_init: Initializing. RAM available for dynamic allocation:
-I (406) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM
-I (412) heap_init: At 3FFCCC88 len 00013378 (76 KiB): DRAM
-I (418) heap_init: At 3FFE0440 len 00003BC0 (14 KiB): D/IRAM
-I (425) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
-I (431) heap_init: At 40090E58 len 0000F1A8 (60 KiB): IRAM
-I (437) cpu_start: Pro cpu start user code\0x1b[0m
-I (120) cpu_start: Starting scheduler on PRO CPU.
-I (0) cpu_start: Starting scheduler on APP CPU.
-I (243) BTDM_INIT: BT controller compile version [44d04c1]
-
-I (243) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE
-I (633) phy: phy_version: 3910, c0c45a3, May 21 2018, 18:07:06, 0, 0
-I (663) IBEACON_DEMO: register callback
-I (329203) IBEACON_DEMO: ----------iBeacon Found----------
-I (329203) IBEACON_DEMO: Device address:: 30 ae a4 00 42 82
-I (329203) IBEACON_DEMO: Proximity UUID:: fd a5 06 93 a4 e2 4f b1 af cf c6 eb 07 64 78 25
+I (475) USER: Event: Scanning start, Success: Yes
+I (475) IBEACON_MANAGER: Scanning start successfully
+I (1165) USER: Adv data(30): 
+02 01 06 1a ff 4c 00 02 15 fd a5 06 93 a4 e2 4f b1 af cf 6e b0 76 47 82 05 01 00 02 00 d8
+I (1165) USER: Found iBeacon:
+I (1165) USER: UUID: 
+fd a5 06 93 a4 e2 4f b1 af cf 6e b0 76 47 82 05
+I (1175) USER: Major: 256, Minor: 512, RSSI: -75
 ```
 
-## Troubleshooting
+## 项目结构
 
-For any technical queries, please open an [issue](https://github.com/espressif/esp-idf/issues) on GitHub. We will get back to you soon.
+本项目使用位于 `components` 目录下的自定义 IBeaconManager 组件：
+- `components/IBeaconManager/include/IBeaconManager.h` - 类定义头文件
+- `components/IBeaconManager/src/IBeaconManager.cpp` - 实现文件
+- `components/IBeaconManager/example/iBeacon_scan` - 组件使用示例
+
+## 故障排除
+
+如有任何技术问题，请在 GitHub 上提交 [issue](https://github.com/espressif/esp-idf/issues)，我们会尽快回复您。
