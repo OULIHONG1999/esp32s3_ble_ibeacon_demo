@@ -149,6 +149,14 @@ uint16_t IBeaconManager::endianChangeU16(uint16_t x) {
 
 // 判断是否为iBeacon数据包
 bool IBeaconManager::isIBeaconPacket(uint8_t *adv_data, uint8_t adv_data_len) {
+
+    // 输出整个数据包
+    // printf("扫描到数据包【%d】:", adv_data_len);
+    // for (int i = 0; i < adv_data_len; i++) {
+    //     printf("%02d ", adv_data[i]);
+    // }
+    // printf("\n");
+
     if (adv_data == nullptr || adv_data_len != 0x1E) {
         return false;
     }
@@ -218,7 +226,8 @@ void IBeaconManager::handleScanResult(esp_ble_gap_cb_param_t *param) {
     }
 
     if (isIBeaconPacket(param->scan_rst.ble_adv, param->scan_rst.adv_data_len)) {
-        IBeaconData *ibeacon = (IBeaconData *) param->scan_rst.ble_adv;
+        auto *ibeacon = (IBeaconData *) param->scan_rst.ble_adv;
+        // 获取设备地址 - 这里就是你要的MAC地址
         uint16_t major = endianChangeU16(ibeacon->vendor.major);
         uint16_t minor = endianChangeU16(ibeacon->vendor.minor);
 
